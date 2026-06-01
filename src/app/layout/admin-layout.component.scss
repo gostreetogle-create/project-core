@@ -1,0 +1,224 @@
+// ========================================
+// Admin Layout
+// ========================================
+
+.layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+// === Sidebar ===
+.layout__sidebar {
+  width: 240px;
+  min-width: 240px;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.25s ease, min-width 0.25s ease;
+  overflow: hidden;
+  z-index: 100;
+}
+
+.sidebar--hidden {
+  width: 56px;
+  min-width: 56px;
+}
+
+.layout--collapsed .layout__sidebar {
+  width: 56px;
+  min-width: 56px;
+}
+
+.sidebar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-3);
+  border-bottom: 1px solid var(--color-border-light);
+  height: 52px;
+}
+
+.sidebar__logo {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+
+.sidebar__toggle {
+  flex-shrink: 0;
+}
+
+.sidebar__nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2);
+  overflow-y: auto;
+}
+
+.nav__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-text);
+  }
+
+  &--active {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+  }
+}
+
+.nav__icon {
+  font-size: 1.1rem;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.nav__label {
+  overflow: hidden;
+}
+
+.sidebar__footer {
+  padding: var(--space-2);
+  border-top: 1px solid var(--color-border-light);
+  display: flex;
+  justify-content: center;
+}
+
+.sidebar__theme-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+// === Main area ===
+.layout__main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+// === Top bar ===
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  padding: 0 var(--space-4);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border-light);
+  flex-shrink: 0;
+}
+
+.topbar__left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.topbar__mobile-menu {
+  display: none;
+}
+
+.topbar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.topbar__user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--color-surface-hover);
+  }
+}
+
+.topbar__username {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+// === Content ===
+.layout__main {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--color-bg);
+}
+
+// === Mobile ===
+@media (max-width: 768px) {
+  .layout__sidebar {
+    display: none;
+  }
+
+  .topbar__mobile-menu {
+    display: inline-flex;
+  }
+}
+
+// === Sidebar mobile ===
+.sidebar-mobile-header {
+  padding: var(--space-2) 0;
+}
+
+.sidebar-logo-text {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+}
+
+.sidebar-mobile-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-mobile-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-text);
+  }
+
+  i {
+    width: 20px;
+    text-align: center;
+  }
+}

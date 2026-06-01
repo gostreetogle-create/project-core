@@ -1,0 +1,49 @@
+# ========================================
+# Docker Compose — Project Core
+# ========================================
+# Запуск: docker compose up -d
+# Остановка: docker compose down
+
+services:
+  # База данных MongoDB
+  mongodb:
+    image: mongo:7
+    container_name: project-core-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: project-core
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend (Express)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: project-core-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - backend_uploads:/app/uploads
+    env_file:
+      - ./backend/.env
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/project-core
+      NODE_ENV: production
+
+volumes:
+  mongodb_data:
+    name: project-core-mongodb-data
+  backend_uploads:
+    name: project-core-uploads
