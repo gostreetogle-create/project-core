@@ -63,6 +63,12 @@ core → shared → features → layout
 | Подтверждение | `KpConfirmDialogComponent` | `<kp-confirm-dialog>`, `ConfirmationService` |
 | Бейдж | `KpBadgeComponent` | `<kp-badge>` |
 | Хлебные крошки | `KpBreadcrumbComponent` | `<kp-breadcrumb>` |
+| Боковая панель | `KpDrawerComponent` | `<kp-drawer>` |
+| Аватар | `KpAvatarComponent` | `<kp-avatar>` |
+| Меню | `KpTieredMenuComponent` | `<kp-tiered-menu>` |
+| Выбор даты | `KpDatepickerComponent` | `<kp-datepicker>` |
+| Загрузка файлов | `KpFileUploadComponent` | `<kp-file-upload>` |
+| Переключатель | `KpToggleComponent` | `<kp-toggle>` |
 
 ---
 
