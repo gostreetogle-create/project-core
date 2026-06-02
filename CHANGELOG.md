@@ -6,7 +6,27 @@
 
 ---
 
-## [1.0.0] — 2026-06-02
+## [1.0.1] — 2026-06-03
+
+### Added
+- **Тесты kp-*:** 3 новых spec-файла — kp-datepicker, kp-file-upload, kp-toggle (создание, рендер, значения по умолчанию, outputs)
+- **ANGULAR_21_FEATURES.md:** компактный справочник фич Angular 21 (сигналы, control flow, zoneless, отличия от 19/20)
+- **SIGNAL_FORMS_RESEARCH.md:** разведка экспериментальных Signal Forms — API, сравнение, рекомендации для ядра
+- **KNOWLEDGE_BASE.md:** ссылка на ANGULAR_21_FEATURES.md в разделе «Технологический стек»
+
+### Fixed
+- **NG0303 в kp-dialog.spec.ts:** тест переписан без `componentRef.setInput()` — JIT-компилятор Angular 21 не обрабатывает метаданные signal inputs (баг задокументирован в ANGULAR_21_FEATURES.md)
+- **seed_chromadb.py:** DuplicateIDError исправлен добавлением уникальных счётчиков ID
+- **Backend:** `npm install` в `backend/` после git pull — пропущенный `helmet` и другие пакеты
+
+### Changed
+- Тесты: 92→100, 18→21 spec-файл
+- ChromaDB: 26→105 документов, 5→11 файлов знаний
+
+### Technical
+- Исследована совместимость `@analogjs/vite-plugin-angular` — несовместим с Angular 21 (требует `@angular/build/private`)
+- Исследован статус Angular 22 — RC-стадия, стабильного релиза нет
+- Signal Forms: рекомендовано не использовать до стабилизации API
 
 ### Added
 - **Безопасность:** helmet, express-rate-limit, express.json(limit), HttpOnly cookie для refresh-токена

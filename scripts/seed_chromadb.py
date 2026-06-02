@@ -50,6 +50,7 @@ root_md_files = [
 root_md_files = [f for f in root_md_files if f.exists()]
 
 md_files = sorted(EXTRACTED.glob("*.md")) + root_md_files
+id_counter = [0]  # mutable counter for unique IDs
 ids = []
 documents = []
 metadatas = []
@@ -60,7 +61,8 @@ for md_file in md_files:
     sections = parse_md_sections(text)
 
     # Add full document
-    safe_id = re.sub(r'[^a-zA-Z0-9_-]', '_', f"{project_name}__full")[:64]
+    id_counter[0] += 1
+    safe_id = re.sub(r'[^a-zA-Z0-9_-]', '_', f"{project_name}__full")[:58] + f"_{id_counter[0]}"
     ids.append(safe_id)
     documents.append(text[:5000])
     metadatas.append({
@@ -72,8 +74,9 @@ for md_file in md_files:
 
     for section_name, content in sections.items():
         if len(content) > 50:
+            id_counter[0] += 1
             safe_section = re.sub(r'[^a-zA-Z0-9_-]', '_', section_name[:30])[:30]
-            section_id = re.sub(r'[^a-zA-Z0-9_-]', '_', f"{project_name}__{safe_section}")[:64]
+            section_id = re.sub(r'[^a-zA-Z0-9_-]', '_', f"{project_name}__{safe_section}")[:58] + f"_{id_counter[0]}"
             ids.append(section_id)
             documents.append(content[:2000])
 

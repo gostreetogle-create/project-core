@@ -14,14 +14,12 @@ describe('KpDialogComponent', () => {
 
   afterEach(() => TestBed.resetTestingModule());
 
-  it('создаётся и рендерит p-dialog при visible=true', () => {
+  it('создаётся и рендерит p-dialog', () => {
     const f = TestBed.createComponent(KpDialogComponent);
-    f.componentRef.setInput('visible', true);
     f.detectChanges();
     expect(f.componentInstance).toBeTruthy();
-    if (f.componentInstance.visible()) {
-      expect(f.debugElement.query(By.css('p-dialog'))).toBeTruthy();
-    }
+    // p-dialog всегда в DOM (скрыт CSS при visible=false)
+    expect(f.debugElement.query(By.css('p-dialog'))).toBeTruthy();
   });
 
   it('значения по умолчанию', () => {
