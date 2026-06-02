@@ -14,7 +14,7 @@ import { RouterLink } from '@angular/router';
         <a routerLink="/ui-kit" class="welcome-card">
           <i class="pi pi-palette welcome-card__icon"></i>
           <span class="welcome-card__title">UI Kit</span>
-          <span class="welcome-card__desc">10 компонентов: кнопки, таблицы, формы, диалоги</span>
+          <span class="welcome-card__desc">16 компонентов: кнопки, таблицы, формы, диалоги, меню, аватары</span>
         </a>
 
         <div class="welcome-card">

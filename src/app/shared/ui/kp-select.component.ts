@@ -27,6 +27,8 @@ export interface SelectOption {
           [disabled]="disabled()"
           [showClear]="showClear()"
           [class.ng-invalid]="!!error()"
+          [attr.aria-label]="label() || 'Выпадающий список'"
+          [attr.aria-describedby]="error() ? inputId() + '-error' : null"
         />
         <label [for]="inputId()">{{ label() }}</label>
       </p-floatlabel> }
@@ -46,7 +48,7 @@ export interface SelectOption {
       }
 
       @if (error()) {
-        <small class="kp-select__error">{{ error() }}</small>
+        <small class="kp-select__error" [id]="inputId() + '-error'">{{ error() }}</small>
       }
     </div>
   `,

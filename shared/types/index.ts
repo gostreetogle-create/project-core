@@ -32,14 +32,8 @@ export interface LoginRequest {
 export interface LoginResponse {
   user: User;
   accessToken: string;
-  refreshToken: string;
-}
-
-export interface RefreshRequest {
-  refreshToken: string;
 }
 
 export interface RefreshResponse {
   accessToken: string;
-  refreshToken: string;
 }

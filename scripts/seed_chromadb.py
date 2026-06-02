@@ -40,13 +40,22 @@ def parse_md_sections(text: str) -> dict:
         sections[current_section] = '\n'.join(current_content).strip()
     return sections
 
-md_files = sorted(EXTRACTED.glob("*.md"))
+# Index root-level markdown files too
+root_md_files = [
+    BASE / "AGENTS.md",
+    BASE / "README.md",
+    BASE / "CHANGELOG.md",
+    BASE / "протокол-сессии.md",
+]
+root_md_files = [f for f in root_md_files if f.exists()]
+
+md_files = sorted(EXTRACTED.glob("*.md")) + root_md_files
 ids = []
 documents = []
 metadatas = []
 
 for md_file in md_files:
-    project_name = md_file.stem
+    project_name = md_file.stem if md_file.parent == EXTRACTED else f"root__{md_file.stem}"
     text = md_file.read_text(encoding="utf-8")
     sections = parse_md_sections(text)
 

@@ -1,20 +1,23 @@
 import mongoose from 'mongoose';
 import { env } from './env.js';
+import { logger } from '../utils/logger.js';
+
+const dbLog = logger.child({ module: 'db' });
 
 export async function connectDB(): Promise<void> {
-  try {
-    await mongoose.connect(env.MONGODB_URI);
-    console.log('[DB] MongoDB connected');
-  } catch (error) {
-    console.error('[DB] MongoDB connection error:', error);
-    process.exit(1);
-  }
+  await mongoose.connect(env.MONGODB_URI, { serverSelectionTimeoutMS: 5000, connectTimeoutMS: 5000 });
+  dbLog.info('MongoDB connected');
 
   mongoose.connection.on('error', (err) => {
-    console.error('[DB] MongoDB error:', err);
+    dbLog.error(err, 'MongoDB runtime error');
   });
 
   mongoose.connection.on('disconnected', () => {
-    console.warn('[DB] MongoDB disconnected');
+    dbLog.warn('MongoDB disconnected');
   });
+}
+
+export async function disconnectDB(): Promise<void> {
+  await mongoose.disconnect();
+  dbLog.info('MongoDB disconnected (clean)');
 }

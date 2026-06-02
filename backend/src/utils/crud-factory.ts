@@ -3,11 +3,25 @@
 // ========================================
 
 import { Router, Request, Response, NextFunction } from 'express';
-import { Model, Document, FilterQuery, SortOrder } from 'mongoose';
+import { Model, Document, FilterQuery, SortOrder, Error as MongooseError } from 'mongoose';
 import { validationResult, ValidationChain } from 'express-validator';
-import { success, paginated, error } from '../utils/api-response.js';
+import { success, paginated } from '../utils/api-response.js';
 import { AppError } from '../middleware/error-handler.js';
 import { authMiddleware } from '../middleware/auth.js';
+
+/** Преобразует Mongoose ValidationError в AppError с кодом 400 */
+function wrapError(err: unknown): AppError {
+  if (err instanceof AppError) return err;
+  if (err instanceof MongooseError.ValidationError) {
+    const messages = Object.values(err.errors).map((e) => e.message).join('; ');
+    return new AppError(messages, 400);
+  }
+  // CastError (невалидный ObjectId) — тоже 400
+  if (err instanceof MongooseError.CastError) {
+    return new AppError(`Невалидный ID: ${err.value}`, 400);
+  }
+  return err as AppError;
+}
 
 type PopulateOption = string | { path: string; select?: string };
 
@@ -92,7 +106,7 @@ export function createCrudRouter<T extends Document>(
 
       res.json(paginated(data, total, page, limit));
     } catch (err) {
-      next(err);
+      next(wrapError(err));
     }
   });
 
@@ -103,7 +117,7 @@ export function createCrudRouter<T extends Document>(
       if (!doc) throw new AppError('Запись не найдена', 404);
       res.json(success(doc));
     } catch (err) {
-      next(err);
+      next(wrapError(err));
     }
   });
 
@@ -126,7 +140,7 @@ export function createCrudRouter<T extends Document>(
 
       res.status(201).json(success(doc, 'Создано успешно'));
     } catch (err) {
-      next(err);
+      next(wrapError(err));
     }
   });
 
@@ -147,7 +161,7 @@ export function createCrudRouter<T extends Document>(
       if (!doc) throw new AppError('Запись не найдена', 404);
       res.json(success(doc, 'Обновлено успешно'));
     } catch (err) {
-      next(err);
+      next(wrapError(err));
     }
   });
 
@@ -158,7 +172,7 @@ export function createCrudRouter<T extends Document>(
       if (!doc) throw new AppError('Запись не найдена', 404);
       res.json(success(null, 'Удалено успешно'));
     } catch (err) {
-      next(err);
+      next(wrapError(err));
     }
   });
 

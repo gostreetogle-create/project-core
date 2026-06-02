@@ -23,6 +23,7 @@ type ButtonSize = 'small' | 'large';
       [loading]="loading()"
       [disabled]="disabled()"
       [styleClass]="styleClass()"
+      [attr.aria-label]="label() || 'Кнопка'"
       (onClick)="buttonClick.emit($event)"
     />
   `,

@@ -1,11 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 import { KpInputComponent } from '../../shared/ui/kp-input.component';
 import { KpButtonComponent } from '../../shared/ui/kp-button.component';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
+import { KpToastComponent } from '../../shared/ui/kp-toast.component';
+import { NotificationService } from '../../core/notification.service';
 
 interface LoginErrors {
   username?: string;
@@ -16,8 +16,10 @@ interface LoginErrors {
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, KpInputComponent, KpButtonComponent, ToastModule],
+  imports: [FormsModule, KpInputComponent, KpButtonComponent, KpToastComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    <kp-toast />
     <div class="login">
       <div class="login__card">
         <div class="login__header">
@@ -61,8 +63,6 @@ interface LoginErrors {
         </form>
       </div>
     </div>
-
-    <p-toast position="top-right" />
   `,
   styles: [`
     .login {
@@ -122,7 +122,7 @@ interface LoginErrors {
 export class LoginComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
-  private messageService = inject(MessageService);
+  private notify = inject(NotificationService);
 
   username = '';
   password = '';
@@ -141,14 +141,14 @@ export class LoginComponent {
 
     this.auth.login(this.username, this.password).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Успешно', detail: 'Добро пожаловать!' });
+        this.notify.success('Добро пожаловать!');
         this.router.navigate(['/']);
       },
       error: (err) => {
         this.loading.set(false);
         const detail = err.error?.message || 'Неверный логин или пароль';
         this.errors.set({ general: detail });
-        this.messageService.add({ severity: 'error', summary: 'Ошибка', detail });
+        this.notify.error(detail);
       }
     });
   }

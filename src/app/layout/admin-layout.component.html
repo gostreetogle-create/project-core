@@ -1,12 +1,15 @@
 <kp-toast />
 
 <!-- Mobile sidebar overlay -->
-<p-drawer [(visible)]="mobileSidebarVisible" position="left" [style]="{ width: '260px' }" [closable]="true">
-  <ng-template pTemplate="header">
-    <div class="sidebar-mobile-header">
-      <span class="sidebar-logo-text">Project Core</span>
-    </div>
-  </ng-template>
+<kp-drawer
+  [(visible)]="mobileSidebarVisible"
+  position="left"
+  width="260px"
+  [closable]="true"
+>
+  <div class="sidebar-mobile-header">
+    <span class="sidebar-logo-text">Project Core</span>
+  </div>
   <div class="sidebar-mobile-nav">
     @for (item of navItems; track item.label) {
       <a
@@ -20,18 +23,20 @@
       </a>
     }
   </div>
-</p-drawer>
+</kp-drawer>
 
 <div class="layout" [class.layout--collapsed]="!sidebarVisible()">
   <!-- Desktop sidebar -->
   <aside class="layout__sidebar" [class.sidebar--hidden]="!sidebarVisible()">
     <div class="sidebar__header">
       @if (sidebarVisible()) { <span class="sidebar__logo">Project Core</span> }
-      <button
-        pButton
-        class="p-button-text p-button-sm sidebar__toggle"          [icon]="sidebarVisible() ? 'pi pi-angle-left' : 'pi pi-angle-right'"
-        (click)="toggleSidebar()"
-      ></button>
+      <kp-button
+        [text]="true"
+        size="small"
+        [icon]="sidebarVisible() ? 'pi pi-angle-left' : 'pi pi-angle-right'"
+        styleClass="sidebar__toggle"
+        (buttonClick)="toggleSidebar()"
+      />
     </div>
 
     <nav class="sidebar__nav">
@@ -50,14 +55,15 @@
     </nav>
 
     <div class="sidebar__footer">
-      <button
-        pButton
-        class="p-button-text p-button-sm sidebar__theme-btn"
+      <kp-button
+        [text]="true"
+        size="small"
         [icon]="isDark() ? 'pi pi-sun' : 'pi pi-moon'"
-        (click)="toggleTheme()"
+        styleClass="sidebar__theme-btn"
         [pTooltip]="isDark() ? 'Светлая тема' : 'Тёмная тема'"
         tooltipPosition="right"
-      ></button>
+        (buttonClick)="toggleTheme()"
+      />
     </div>
   </aside>
 
@@ -66,33 +72,28 @@
     <!-- Top bar -->
     <header class="topbar">
       <div class="topbar__left">
-        <button
-          pButton
-          class="p-button-text p-button-sm topbar__mobile-menu"
+        <kp-button
+          [text]="true"
+          size="small"
           icon="pi pi-bars"
-          (click)="toggleMobileSidebar()"
-        ></button>
+          styleClass="topbar__mobile-menu"
+          (buttonClick)="toggleMobileSidebar()"
+        />
       </div>
 
       <div class="topbar__right">
-        <button
-          pButton
-          class="p-button-text p-button-sm"
+        <kp-button
+          [text]="true"
+          size="small"
           icon="pi pi-bell"
-          (click)="onNotificationsClick()"
-        ></button>
-
-        <p-tieredMenu
-          #userMenu
-          [model]="userMenuItems"
-          [popup]="true"
-          appendTo="body"
+          (buttonClick)="onNotificationsClick()"
         />
-        <div class="topbar__user" (click)="userMenu.toggle($event)">
-          <p-avatar
+
+        <kp-tiered-menu #userMenu [model]="userMenuItems" />
+        <div class="topbar__user" (click)="openUserMenu($event)">
+          <kp-avatar
             [label]="(currentUser()?.displayName || 'U').charAt(0)"
             styleClass="p-avatar-sm"
-            shape="circle"
           />
           @if (sidebarVisible()) { <span class="topbar__username">
             {{ currentUser()?.displayName || 'Пользователь' }}

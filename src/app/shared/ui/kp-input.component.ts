@@ -20,6 +20,8 @@ import { FloatLabelModule } from 'primeng/floatlabel';
             [disabled]="disabled()"
             [styleClass]="'kp-input__number' + (error() ? ' ng-invalid' : '')"
             [placeholder]="placeholder()"
+            [attr.aria-label]="label() || placeholder() || 'Поле ввода'"
+            [attr.aria-describedby]="error() ? inputId() + '-error' : null"
           />
           <label [for]="inputId()">{{ label() }}</label>
         } @else {
@@ -32,6 +34,8 @@ import { FloatLabelModule } from 'primeng/floatlabel';
             [disabled]="disabled()"
             [placeholder]="placeholder()"
             [class.ng-invalid]="!!error()"
+            [attr.aria-label]="label() || placeholder() || 'Поле ввода'"
+            [attr.aria-describedby]="error() ? inputId() + '-error' : null"
           />
           <label [for]="inputId()">{{ label() }}</label>
         }
@@ -59,7 +63,7 @@ import { FloatLabelModule } from 'primeng/floatlabel';
       }
 
       @if (error()) {
-        <small class="kp-input__error">{{ error() }}</small>
+        <small class="kp-input__error" [id]="inputId() + '-error'">{{ error() }}</small>
       }
     </div>
   `,

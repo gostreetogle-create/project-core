@@ -4,6 +4,9 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { error as apiError } from '../utils/api-response.js';
+import { logger } from '../utils/logger.js';
+
+const log = logger.child({ module: 'error-handler' });
 
 export class AppError extends Error {
   statusCode: number;
@@ -24,7 +27,7 @@ export function errorHandler(
     return;
   }
 
-  console.error('[ERROR]', err);
+  log.error({ err }, 'Unhandled server error');
   res.status(500).json(apiError('Внутренняя ошибка сервера'));
 }
 

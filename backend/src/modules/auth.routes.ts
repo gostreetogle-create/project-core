@@ -13,6 +13,25 @@ import { authMiddleware, JwtPayload } from '../middleware/auth.js';
 
 const router = Router();
 
+/** Параметры HttpOnly cookie для refresh-токена */
+const REFRESH_COOKIE = {
+  httpOnly: true,
+  secure: env.NODE_ENV === 'production',
+  sameSite: 'strict' as const,
+  path: '/api/v1/auth',
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
+};
+
+/** Установить refresh-токен в HttpOnly cookie */
+function setRefreshCookie(res: Response, token: string) {
+  res.cookie('refreshToken', token, REFRESH_COOKIE);
+}
+
+/** Очистить refresh-токен */
+function clearRefreshCookie(res: Response) {
+  res.clearCookie('refreshToken', { path: REFRESH_COOKIE.path });
+}
+
 // POST /auth/login
 router.post('/login', [
   body('username').trim().notEmpty().withMessage('Введите имя пользователя'),
@@ -40,6 +59,9 @@ router.post('/login', [
     const accessToken = jwt.sign(payload, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRES_IN } as jwt.SignOptions);
     const refreshToken = jwt.sign(payload, env.JWT_SECRET, { expiresIn: env.JWT_REFRESH_EXPIRES_IN } as jwt.SignOptions);
 
+    // Refresh-токен — только в HttpOnly cookie (не в теле ответа!)
+    setRefreshCookie(res, refreshToken);
+
     res.json(success({
       user: {
         id: user._id,
@@ -48,24 +70,26 @@ router.post('/login', [
         role: user.role,
         permissions: user.permissions
       },
-      accessToken,
-      refreshToken
+      accessToken
     }));
   } catch (err) {
     next(err);
   }
 });
 
-// POST /auth/refresh
-router.post('/refresh', [
-  body('refreshToken').notEmpty().withMessage('Требуется refreshToken')
-], async (req: Request, res: Response, next: NextFunction) => {
+// POST /auth/refresh — читает refreshToken из cookie
+router.post('/refresh', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { refreshToken: token } = req.body;
+    const token = req.cookies?.refreshToken;
+    if (!token) {
+      throw new AppError('Требуется refreshToken', 401);
+    }
+
     const decoded = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
 
     const user = await User.findById(decoded.userId);
     if (!user || !user.isActive) {
+      clearRefreshCookie(res);
       throw new AppError('Пользователь не найден', 401);
     }
 
@@ -79,10 +103,19 @@ router.post('/refresh', [
     const accessToken = jwt.sign(payload, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRES_IN } as jwt.SignOptions);
     const newRefreshToken = jwt.sign(payload, env.JWT_SECRET, { expiresIn: env.JWT_REFRESH_EXPIRES_IN } as jwt.SignOptions);
 
-    res.json(success({ accessToken, refreshToken: newRefreshToken }));
+    setRefreshCookie(res, newRefreshToken);
+
+    res.json(success({ accessToken }));
   } catch (err) {
+    clearRefreshCookie(res);
     next(err instanceof AppError ? err : new AppError('Недействительный refreshToken', 401));
   }
+});
+
+// POST /auth/logout — очищает cookie
+router.post('/logout', (_req: Request, res: Response) => {
+  clearRefreshCookie(res);
+  res.json(success(null, 'Вы вышли из системы'));
 });
 
 // GET /auth/me — текущий пользователь

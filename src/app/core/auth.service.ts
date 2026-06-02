@@ -2,8 +2,16 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs';
+import { ApiResponse, LoginResponse, RefreshResponse } from '../../../shared/types/index.js';
 
 interface User { id: string; username: string; displayName: string; role: string; permissions: string[]; }
+
+interface JwtPayload {
+  exp?: number;
+  iat?: number;
+  sub?: string;
+  [key: string]: unknown;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -15,25 +23,28 @@ export class AuthService {
   isAuthenticated = computed(() => this._currentUser() !== null);
 
   get accessToken(): string | null { return localStorage.getItem('accessToken'); }
-  get refreshTokenValue(): string | null { return localStorage.getItem('refreshToken'); }
 
   login(username: string, password: string) {
-    return this.http.post<{data: { user: User; accessToken: string; refreshToken: string }}>('/api/v1/auth/login', { username, password }).pipe(
+    return this.http.post<ApiResponse<LoginResponse>>(
+      '/api/v1/auth/login',
+      { username, password },
+      { withCredentials: true }
+    ).pipe(
       tap(res => {
         localStorage.setItem('accessToken', res.data.accessToken);
-        localStorage.setItem('refreshToken', res.data.refreshToken);
         this._currentUser.set(res.data.user);
       })
     );
   }
 
   refreshToken() {
-    return this.http.post<{data: { accessToken: string; refreshToken: string }}>('/api/v1/auth/refresh', {
-      refreshToken: this.refreshTokenValue
-    }).pipe(
+    return this.http.post<ApiResponse<RefreshResponse>>(
+      '/api/v1/auth/refresh',
+      {},
+      { withCredentials: true }
+    ).pipe(
       tap(res => {
         localStorage.setItem('accessToken', res.data.accessToken);
-        localStorage.setItem('refreshToken', res.data.refreshToken);
       })
     );
   }
@@ -43,21 +54,38 @@ export class AuthService {
   }
 
   logout() {
+    this.http.post('/api/v1/auth/logout', {}, { withCredentials: true }).subscribe({
+      complete: () => this.finishLogout(),
+      error: () => this.finishLogout(),
+    });
+  }
+
+  private finishLogout() {
     localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
     this._currentUser.set(null);
     this.router.navigate(['/login']);
   }
 
+  /**
+   * Загружает пользователя из JWT в localStorage.
+   * Проверяет срок действия токена (exp) — если истёк, сбрасывает сессию.
+   */
   loadUserFromStorage() {
     const token = this.accessToken;
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        this._currentUser.set(payload as User);
-      } catch {
-        this.logout();
+    if (!token) return;
+
+    try {
+      const payload: JwtPayload = JSON.parse(atob(token.split('.')[1]));
+
+      // Проверка срока действия
+      if (payload.exp && payload.exp * 1000 < Date.now()) {
+        this.finishLogout();
+        return;
       }
+
+      this._currentUser.set(payload as unknown as User);
+    } catch {
+      this.finishLogout();
     }
   }
 }
